@@ -17,11 +17,19 @@ echo "✅ Docker encontrado"
 
 # Parar containers anteriores
 echo "🛑 Parando containers anteriores..."
-docker-compose down 2>/dev/null
+if docker compose version >/dev/null 2>&1; then
+    docker compose down 2>/dev/null
+else
+    docker-compose down 2>/dev/null
+fi
 
 # Build e iniciar
 echo "🔨 Compilando e iniciando serviços..."
-docker-compose up -d --build
+if docker compose version >/dev/null 2>&1; then
+    docker compose up -d --build
+else
+    docker-compose up -d --build
+fi
 
 # Aguardar inicialização
 echo "⏳ Aguardando serviços iniciarem (1-2 minutos)..."
@@ -44,10 +52,10 @@ echo ""
 echo "======================================"
 echo ""
 echo "📚 Para ver logs:"
-echo "  docker-compose logs -f"
+echo "  docker compose logs -f"
 echo ""
 echo "🛑 Para parar:"
-echo "  docker-compose down"
+echo "  docker compose down"
 echo ""
 echo "📖 Mais informações: cat README.md"
 echo ""
