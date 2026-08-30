@@ -1,6 +1,7 @@
 package br.com.leonardo.product_service.adapters.inbound.rest;
 
 import br.com.leonardo.product_service.application.ProductService;
+import br.com.leonardo.product_service.config.ApiRoutes;
 import br.com.leonardo.product_service.domain.Product;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping(ApiRoutes.PRODUCTS)
 @Tag(name = "Products", description = "Product Management API")
 public class ProductController {
 
@@ -69,7 +70,7 @@ public class ProductController {
         return ResponseEntity.ok(responses);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = {"/by-id/{id}", "/{id}"})
     @Operation(summary = "Get product by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product found"),
@@ -82,7 +83,7 @@ public class ProductController {
         return ResponseEntity.ok(ProductResponse.fromProduct(product));
     }
 
-    @GetMapping("/sku/{sku}")
+    @GetMapping(value = {"/by-sku/{sku}", "/sku/{sku}"})
     @Operation(summary = "Get product by SKU")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product found"),
@@ -148,7 +149,7 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/category/{category}")
+    @GetMapping(value = {"/by-category/{category}", "/category/{category}"})
     @Operation(summary = "Get products by category")
     @ApiResponse(responseCode = "200", description = "Products retrieved successfully")
     public ResponseEntity<List<ProductResponse>> findByCategory(
