@@ -6,6 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,6 +19,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "products")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Product {
 
     @Id
@@ -46,9 +57,6 @@ public class Product {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    protected Product() {
-    }
-
     public Product(String name, String description, BigDecimal price, Integer stock, String category, String sku) {
         this.name = name;
         this.description = description;
@@ -71,43 +79,8 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public Integer getStock() {
-        return stock;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+    public void deactivate() {
+        this.active = false;
+        this.updatedAt = LocalDateTime.now();
     }
 }

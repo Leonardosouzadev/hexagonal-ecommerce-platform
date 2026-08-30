@@ -28,8 +28,18 @@ public class ProductPersistenceAdapter implements ProductRepositoryPort {
     }
 
     @Override
+    public Optional<Product> findBySku(String sku) {
+        return repository.findBySku(sku);
+    }
+
+    @Override
     public List<Product> findAll() {
-        return repository.findAll();
+        return repository.findAllActive();
+    }
+
+    @Override
+    public List<Product> findByCategory(String category) {
+        return repository.findByCategory(category);
     }
 
     @Override

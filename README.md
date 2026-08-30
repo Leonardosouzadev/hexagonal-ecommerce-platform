@@ -1,4 +1,4 @@
-# 🚀 E-Commerce Platform
+# 🚀 E-Commerce Platform - Backend
 
 Sistema de E-commerce desenvolvido utilizando **Java 21**, **Spring Boot**, **Arquitetura Hexagonal (Ports & Adapters)**, **DDD (Domain Driven Design)**, **Microserviços** e **Apache Kafka** para comunicação assíncrona entre serviços.
 
@@ -8,23 +8,264 @@ O objetivo do projeto é servir como referência para aplicações escaláveis, 
 
 # 📋 Sumário
 
-- Visão Geral
-- Arquitetura
-- Arquitetura Hexagonal
-- Microserviços
-- Fluxo de Negócio
-- Comunicação via Kafka
-- Stack Tecnológica
-- Estrutura dos Projetos
-- Banco de Dados
-- Observabilidade
-- Segurança
-- Infraestrutura
-- Roadmap
+- [Quick Start](#-quick-start)
+- [Pré-requisitos](#pré-requisitos)
+- [Como Rodar o Projeto](#-como-rodar-o-projeto)
+- [Visão Geral](#-visão-geral)
+- [Arquitetura](#-arquitetura-geral)
+- [Arquitetura Hexagonal](#-arquitetura-hexagonal)
+- [Microserviços](#-microserviços)
+- [Fluxo de Negócio](#-fluxo-completo-de-compra)
+- [Comunicação via Kafka](#-comunicação-assíncrona-com-kafka)
+- [Stack Tecnológica](#-stack-principal)
+- [Estrutura dos Projetos](#-estrutura-padrão-dos-serviços)
+- [Banco de Dados](#-estratégia-de-banco-de-dados)
+- [Observabilidade](#-observabilidade)
+- [Segurança](#-segurança)
+- [Infraestrutura](#-infraestrutura)
+- [Roadmap](#-roadmap)
 
 ---
 
-# 🎯 Visão Geral
+# ⚡ Quick Start
+
+Execute tudo com um único comando:
+
+```bash
+docker-compose up -d
+```
+
+Após alguns segundos, verifique os serviços:
+
+- **Frontend**: http://localhost:4200
+- **Kafka UI**: http://localhost:8080
+- **Product Service**: http://localhost:8081/swagger-ui.html
+- **PostgreSQL**: localhost:5432
+- **Redis**: localhost:6379
+
+Parar os serviços:
+
+```bash
+docker-compose down
+```
+
+---
+
+# 🔧 Pré-requisitos
+
+## Opção 1: Com Docker (Recomendado ⭐)
+
+- **Docker** 20.10+ ([Download](https://www.docker.com/products/docker-desktop))
+- **Docker Compose** 2.0+ (incluído no Docker Desktop)
+
+### Verificar instalação:
+
+```bash
+docker --version
+docker-compose --version
+```
+
+## Opção 2: Sem Docker (Local)
+
+- **Java 21 JDK** ([Download](https://www.oracle.com/br/java/technologies/downloads/#java21))
+- **Maven 3.8+** ([Download](https://maven.apache.org/download.cgi))
+- **PostgreSQL 17** ([Download](https://www.postgresql.org/download/))
+- **Redis 7+** ([Download](https://redis.io/download))
+- **Apache Kafka** ([Download](https://kafka.apache.org/quickstart))
+- **Node.js 18+** (para o frontend)
+
+### Verificar instalações:
+
+```bash
+java -version
+mvn --version
+psql --version
+redis-cli --version
+```
+
+---
+
+# 🚀 Como Rodar o Projeto
+
+## Opção 1: Com Docker Compose (Recomendado)
+
+### Passo 1: Clone o Repositório
+
+```bash
+git clone <seu-repositorio>
+cd hexagonal-ecommerce-platform
+```
+
+### Passo 2: Inicie os Serviços
+
+```bash
+docker-compose up -d
+```
+
+**Logs em tempo real:**
+
+```bash
+docker-compose logs -f
+```
+
+**Logs de um serviço específico:**
+
+```bash
+docker-compose logs -f product-service
+docker-compose logs -f kafka
+docker-compose logs -f postgres
+```
+
+### Passo 3: Aguarde a Inicialização
+
+Todos os serviços devem estar saudáveis em ~30 segundos.
+
+### Passo 4: Acesse os Serviços
+
+| Serviço | URL |
+|---------|-----|
+| Frontend | http://localhost:4200 |
+| Kafka UI | http://localhost:8080 |
+| Product Service (Swagger) | http://localhost:8081/swagger-ui.html |
+| PostgreSQL | localhost:5432 |
+| Redis CLI | localhost:6379 |
+
+### Parar os Serviços
+
+```bash
+docker-compose down
+```
+
+**Remover volumes (limpar dados):**
+
+```bash
+docker-compose down -v
+```
+
+---
+
+## Opção 2: Execução Local (Sem Docker)
+
+### Passo 1: Configure Banco de Dados
+
+#### PostgreSQL
+
+```bash
+# Criar database
+createdb product_db
+
+# Conectar ao banco
+psql -U postgres -d product_db
+```
+
+#### Redis
+
+```bash
+# Iniciar Redis
+redis-server
+
+# Em outro terminal, testar
+redis-cli ping
+# Deve retornar: PONG
+```
+
+#### Apache Kafka
+
+```bash
+# Extrair e navegar para a pasta
+cd kafka_2.13-3.7.0
+
+# Iniciar Zookeeper (Terminal 1)
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+# Iniciar Kafka (Terminal 2)
+bin/kafka-server-start.sh config/server.properties
+
+# Verificar tópicos
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+```
+
+### Passo 2: Clone e Configure o Projeto
+
+```bash
+git clone <seu-repositorio>
+cd hexagonal-ecommerce-platform/services/product-service
+```
+
+### Passo 3: Configure Environment Variables
+
+Crie arquivo `.env` na raiz do serviço:
+
+```env
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/product_db
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=sua_senha
+KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+```
+
+### Passo 4: Compile e Rode
+
+```bash
+# Instale dependências e execute
+mvn clean install
+mvn spring-boot:run
+```
+
+**Ou com IDE (IntelliJ/Eclipse):**
+- Abra a pasta como projeto Maven
+- Clique em Run → Run
+
+### Passo 5: Frontend
+
+Em outro terminal:
+
+```bash
+cd hexagonal-ecommerce-frontend
+npm install
+npm start
+```
+
+---
+
+## 🛑 Troubleshooting
+
+### Porta já em uso
+
+```bash
+# Encontrar processo na porta 8080
+netstat -ano | findstr :8080  # Windows
+lsof -i :8080                 # Linux/Mac
+
+# Matar processo
+taskkill /PID <PID> /F        # Windows
+kill -9 <PID>                 # Linux/Mac
+```
+
+### Containers não iniciam
+
+```bash
+# Verificar logs
+docker-compose logs
+
+# Remover containers e volumes
+docker-compose down -v
+
+# Reconstruir
+docker-compose up --build
+```
+
+### Kafka connection refused
+
+Aguarde 10-15 segundos após iniciar o docker-compose. O Kafka demora um pouco para estar pronto.
+
+```bash
+# Verificar status do Kafka
+docker-compose exec kafka kafka-topics.sh --bootstrap-server localhost:9092 --list
+```
+
+---
+
+
 
 A plataforma é composta por múltiplos microserviços independentes responsáveis por domínios específicos do negócio.
 
@@ -677,3 +918,29 @@ Testcontainers
 - Clean Architecture (Robert C. Martin)
 - Building Event-Driven Microservices (Adam Bellemare)
 - Microservices Patterns (Chris Richardson)
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para:
+
+1. Fazer fork do projeto
+2. Criar uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abrir um Pull Request
+
+---
+
+## 📧 Suporte
+
+Para dúvidas, sugestões ou issues, abra uma issue no repositório ou entre em contato.
+
+---
+
+## 📄 Licença
+
+MIT
+
+**Desenvolvido com ❤️ por Leonardo De Souza Macedo**
